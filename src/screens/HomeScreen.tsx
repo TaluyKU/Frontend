@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ImageBackground, StyleSheet, Animated } from 'react-native';
+import { ImageBackground, StyleSheet, Animated, ActivityIndicator } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
-import { View, Carousel, Text, Image, Card } from 'react-native-ui-lib';
+import { View, Carousel, Text, Image, Card, TouchableOpacity } from 'react-native-ui-lib';
 import axios, { AxiosResponse } from 'axios';
 import { Place } from '#src/interfaces/PlaceInterface';
 import Colors from '#src/constants/Colors';
+import { FlatList } from 'react-native-gesture-handler';
+import PlaceRecommendComponent from '#src/components/home/PlaceRecommend';
+import { useCurrentLocation } from '#src/hooks/useCurrentLocation';
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
@@ -12,9 +15,11 @@ interface HomeScreenProps {
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const [transportationData, setTransportationData] = useState<Place[]>([]);
-  const [selectedContent, setSelectedContent] = useState<string>('ใกล้ที่สุด');
-  const contents = ['ใกล้ที่สุด', 'ยอดนิยม', 'มาใหม่'];
-  const [popularPlaces, setPopularPlaces] = useState<Place[]>([]);
+  const [selectedContent, setSelectedContent] = useState<string>('new');
+  const [recommendedPlaces, setRecommendedPlaces] = useState<Place[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { location, errorMsg } = useCurrentLocation();
+  const tabs = ['popular', 'nearby', 'new'];
 
   const getAllPlace = () => {
     axios
@@ -30,20 +35,36 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
   useEffect(() => {
     getAllPlace();
+    fetchRecommendedPlaces(selectedContent);
   }, []);
+
+  const fetchRecommendedPlaces = async (type: string) => {
+    try {
+      if (type == 'popular') {
+        const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
+        setRecommendedPlaces(response.data);
+        setRecommendedPlaces(response.data);
+      } else if (type == 'nearby' && location) {
+        const response = await axios.get(
+          `${process.env.BASE_URL}/place/nearby/${location.coords.latitude}/${location.coords.longitude}`
+        );
+        setRecommendedPlaces(response.data);
+        setRecommendedPlaces(response.data);
+      } else if (type == 'new') {
+        const response = await axios.get(`${process.env.BASE_URL}/place/newest`);
+        setRecommendedPlaces(response.data);
+        setRecommendedPlaces(response.data);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPlaces = async () => {
-      try {
-        const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
-        setPopularPlaces(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchPlaces();
-  }, []);
+    fetchRecommendedPlaces(selectedContent);
+  }, [selectedContent]);
 
   return (
     <View style={styles.container}>
@@ -82,7 +103,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             navigation.navigate('Map');
           }}
         >
-          <Image source={require('#assets/images/menu.png')} style={styles.menuIcon} />
+          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
           <Text style={styles.menuText}>แผนที่</Text>
         </Card>
         <Card
@@ -91,7 +112,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             navigation.navigate('Map', { category: 'คาเฟ่' });
           }}
         >
-          <Image source={require('#assets/images/menu.png')} style={styles.menuIcon} />
+          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
           <Text style={styles.menuText}>คาเฟ่</Text>
         </Card>
         <Card
@@ -100,7 +121,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             navigation.navigate('Map', { category: 'ร้านอาหาร' });
           }}
         >
-          <Image source={require('#assets/images/menu.png')} style={styles.menuIcon} />
+          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
           <Text style={styles.menuText}>ร้านอาหาร</Text>
         </Card>
         <Card
@@ -109,7 +130,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             navigation.navigate('Map', { category: 'ห้องน้ำ' });
           }}
         >
-          <Image source={require('#assets/images/menu.png')} style={styles.menuIcon} />
+          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
           <Text style={styles.menuText}>ห้องน้ำ</Text>
         </Card>
         <Card
@@ -118,15 +139,35 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
             navigation.navigate('Map', { category: 'จุดถ่ายภาพ' });
           }}
         >
-          <Image source={require('#assets/images/menu.png')} style={styles.menuIcon} />
+          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
           <Text style={styles.menuText}>จุดถ่ายภาพ</Text>
         </Card>
       </View>
-      {/* <FlatList
-          data={popularPlaces}
-          renderItem={({ item }) => <PlaceComponent place={item} />}
-          keyExtractor={(item) => item._id}
-        /> */}
+      <View style={styles.recommendTab}>
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            key={tab}
+            onPress={() => setSelectedContent(tab)}
+            style={[styles.tab, selectedContent === tab && styles.selectedTab]}
+          >
+            <Text style={selectedContent === tab && styles.selectedTabText}>{tab}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <View>
+        {loading ? (
+          <ActivityIndicator size="large" color={Colors.primary} />
+        ) : (
+          <FlatList
+            data={recommendedPlaces}
+            renderItem={({ item }) => <PlaceRecommendComponent place={item} />}
+            keyExtractor={(item) => item._id}
+            horizontal
+            style={styles.recommendPlace}
+          />
+        )}
+      </View>
     </View>
   );
 };
@@ -135,7 +176,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    alignItems: 'center',
     justifyContent: 'flex-start',
     backgroundColor: Colors.background,
   },
@@ -185,10 +225,23 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 10,
   },
+  recommendPlace: {},
+  recommendTab: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  tab: {
+    padding: 10,
+  },
+  selectedTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: Colors.highlight,
+  },
+  selectedTabText: {
+    color: Colors.highlight,
+  },
 });
 
 export default HomeScreen;
 
-//TODO: comment ไม่เข้า
 //TODO: map cate กดไม่ได้
-//TODO: เลื่อนไม่ได้
