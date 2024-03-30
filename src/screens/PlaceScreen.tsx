@@ -194,6 +194,20 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         console.error(`handleReviewSubmit error ${error}`);
       });
   };
+  const changeRateColor = (rate: string) => {
+    if (rate === 'A') {
+      return '#52AC66';
+    } else if (rate === 'B' || rate === 'B+') {
+      return '#87AE54';
+    } else if (rate === 'C' || rate === 'C+') {
+      return '#ADAA54';
+    } else if (rate === 'D' || rate === 'D+') {
+      return '#AD7353';
+    } else if (rate === 'F') {
+      return '#B15555';
+    }
+  };
+  const rateColor = changeRateColor(place.averageRatingLabel);
 
   return (
     <ScrollView style={styles.container}>
@@ -212,8 +226,34 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         <Text style={styles.title}>{place.name}</Text>
         <Text style={styles.distance}>{distance} m</Text>
         <Text style={styles.info}>{place.generalInfo}</Text>
-        <Text text50>{place.averageRatingLabel}</Text>
-        <Text text70>{review.length}</Text>
+        <View style={styles.rating}>
+          <Text
+            text70
+            style={{
+              marginRight: 10,
+              borderColor: rateColor,
+              borderWidth: 1,
+              padding: 2,
+              bottom: 3,
+              paddingRight: 4,
+              paddingLeft: 4,
+              color: rateColor,
+              fontWeight: '700',
+            }}
+          >
+            {place.averageRatingLabel}
+          </Text>
+          <Text text70>{review.length} ratings</Text>
+        </View>
+        <View
+          style={{
+            width: 350,
+            backgroundColor: 'rgba(164, 164, 164, 1)',
+            height: 1,
+            marginBottom: 10,
+            marginTop: 10,
+          }}
+        ></View>
         <TouchableOpacity style={styles.favorite} onPress={handleFavorite}>
           {isFavorite ? (
             <Icon source={require('#assets/images/place/badge-color.png')} size={30} />
@@ -221,41 +261,69 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
             <Icon source={require('#assets/images/place/badge-nocolor.png')} size={30} />
           )}
         </TouchableOpacity>
-        {place.weeklySchedule && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Weekly Schedule</Text>
-            {place.weeklySchedule.map((schedule, index) => (
-              <Text
-                key={index}
-              >{`${schedule.date}: ${schedule.time.start.hour}:${schedule.time.start.minute} - ${schedule.time.end.hour}:${schedule.time.end.minute}`}</Text>
-            ))}
-          </View>
-        )}
-        {place.phone && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Phone</Text>
-            {place.phone.map((phone, index) => (
-              <Text key={index}>{phone}</Text>
-            ))}
-          </View>
-        )}
-        {place.website && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Website</Text>
-            {place.website.map((website, index) => (
-              <Text key={index}>{website}</Text>
-            ))}
-          </View>
-        )}
-        {place.email && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Email</Text>
-            {place.email.map((email, index) => (
-              <Text key={index}>{email}</Text>
-            ))}
-          </View>
-        )}
-        <Button label="เขียนรีวิว" onPress={() => setReviewModalVisible(true)} />
+        <View style={{ flex: 1 }}>
+          {place.weeklySchedule && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/weekly.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>Weekly Schedule</Text>
+                {place.weeklySchedule.map((schedule, index) => (
+                  <Text
+                    key={index}
+                  >{`${schedule.date}: ${schedule.time.start.hour}:${schedule.time.start.minute} - ${schedule.time.end.hour}:${schedule.time.end.minute}`}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+          {place.phone && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/phone.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>Phone</Text>
+                {place.phone.map((phone, index) => (
+                  <Text key={index}>{phone}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+          {place.website && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/website.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>Website</Text>
+                {place.website.map((website, index) => (
+                  <Text key={index}>{website}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+          {place.email && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/email.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>Email</Text>
+                {place.email.map((email, index) => (
+                  <Text key={index}>{email}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+          <View
+            style={{
+              width: 350,
+              backgroundColor: 'rgba(164, 164, 164, 1)',
+              height: 1,
+              marginBottom: 20,
+              marginTop: 10,
+            }}
+          ></View>
+        </View>
+        <Button
+          label="เพิ่มความคิดเห็น"
+          onPress={() => setReviewModalVisible(true)}
+          style={{ backgroundColor: '#E1F0DA', borderRadius: 10 }}
+          color={'black'}
+        />
         <ReviewModal
           isVisible={reviewModalVisible}
           onClose={() => setReviewModalVisible(false)}
@@ -292,6 +360,10 @@ const styles = StyleSheet.create({
   info: {
     marginBottom: 16,
   },
+  rating: {
+    flex: 1,
+    flexDirection: 'row',
+  },
   imageContainer: {
     flexDirection: 'row',
     marginBottom: 16,
@@ -303,6 +375,9 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 16,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontWeight: 'bold',
@@ -313,11 +388,11 @@ const styles = StyleSheet.create({
     right: 20,
   },
   review: {
-    backgroundColor: Colors.background,
-    marginBottom: 16,
+    backgroundColor: '#F8F5E8',
+    marginTop: 16,
     borderColor: 'black',
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
     shadowOffset: { width: 2, height: 2 },
