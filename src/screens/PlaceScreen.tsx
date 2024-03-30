@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { calculateDistance } from '#src/utils/calculateDistance';
 import ReviewModal from '#components/ReviewModal';
 import { Review } from '#src/interfaces/ReviewInterface';
+import Colors from '#src/constants/Colors';
 
 type RootStackParamList = {
   Place: { placeId: string };
@@ -23,6 +24,15 @@ type PlaceScreenProps = {
 };
 
 const { width, height } = Dimensions.get('window');
+
+interface ReviewSummary {
+  _id: string;
+  rate1: number;
+  rate2: number;
+  rate3: number;
+  rate4: number;
+  rate5: number;
+}
 
 const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
   const [place, setPlace] = useState<Place>({
@@ -39,6 +49,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
     email: [],
     reviewsCountLastMonth: 0,
     averageRating: 0,
+    averageRatingLabel: '',
     createdAt: new Date(),
   });
   const { location, errorMsg } = useCurrentLocation();
@@ -46,6 +57,14 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [reviewModalVisible, setReviewModalVisible] = useState<boolean>(false);
   const [review, setReview] = useState<Review[]>([]);
+  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({
+    _id: '',
+    rate1: 0,
+    rate2: 0,
+    rate3: 0,
+    rate4: 0,
+    rate5: 0,
+  });
   const distance = location
     ? calculateDistance(
         location.coords.latitude,
@@ -97,10 +116,26 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
       });
   };
 
+  const getReviewSummary = async () => {
+    axios
+      .get(`${process.env.BASE_URL}/place/review/summary/${placeId}`, {
+        headers: {
+          Authorization: `Bearer ${await AsyncStorage.getItem('token')}`,
+        },
+      })
+      .then((response) => {
+        setReviewSummary(response.data);
+      })
+      .catch((error) => {
+        console.error(`getReviewSummary error ${error}`);
+      });
+  };
+
   useEffect(() => {
     getPlace();
     getFavorite();
     getReview();
+    getReviewSummary();
   }, []);
 
   const handleFavorite = async () => {
@@ -161,7 +196,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView style={styles.container}>
       <View style={styles.imageContainer}>
         {place.images &&
           place.images.map((image, index) => (
@@ -177,11 +212,13 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         <Text style={styles.title}>{place.name}</Text>
         <Text style={styles.distance}>{distance} m</Text>
         <Text style={styles.info}>{place.generalInfo}</Text>
+        <Text text50>{place.averageRatingLabel}</Text>
+        <Text text70>{review.length}</Text>
         <TouchableOpacity style={styles.favorite} onPress={handleFavorite}>
           {isFavorite ? (
-            <Icon source={require('#assets/images/badge-color.png')} size={30} />
+            <Icon source={require('#assets/images/place/badge-color.png')} size={30} />
           ) : (
-            <Icon source={require('#assets/images/badge-nocolor.png')} size={30} />
+            <Icon source={require('#assets/images/place/badge-nocolor.png')} size={30} />
           )}
         </TouchableOpacity>
         {place.weeklySchedule && (
@@ -218,7 +255,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
             ))}
           </View>
         )}
-        <Button label="Add Review" onPress={() => setReviewModalVisible(true)} />
+        <Button label="เขียนรีวิว" onPress={() => setReviewModalVisible(true)} />
         <ReviewModal
           isVisible={reviewModalVisible}
           onClose={() => setReviewModalVisible(false)}
@@ -239,6 +276,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.background,
   },
   contentContainer: {
     padding: 20,
@@ -275,15 +313,16 @@ const styles = StyleSheet.create({
     right: 20,
   },
   review: {
+    backgroundColor: Colors.background,
     marginBottom: 16,
     borderColor: 'black',
     borderWidth: 1,
     borderRadius: 5,
     padding: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
   },
 });
 

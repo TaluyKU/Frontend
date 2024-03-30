@@ -24,5 +24,6 @@ export interface Place {
   email?: string[];
   reviewsCountLastMonth: number;
   averageRating: number;
+  averageRatingLabel: string;
   createdAt: Date;
 }
