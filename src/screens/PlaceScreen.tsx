@@ -25,15 +25,6 @@ type PlaceScreenProps = {
 
 const { width, height } = Dimensions.get('window');
 
-interface ReviewSummary {
-  _id: string;
-  rate1: number;
-  rate2: number;
-  rate3: number;
-  rate4: number;
-  rate5: number;
-}
-
 const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
   const [place, setPlace] = useState<Place>({
     _id: '',
@@ -57,14 +48,6 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [reviewModalVisible, setReviewModalVisible] = useState<boolean>(false);
   const [review, setReview] = useState<Review[]>([]);
-  const [reviewSummary, setReviewSummary] = useState<ReviewSummary>({
-    _id: '',
-    rate1: 0,
-    rate2: 0,
-    rate3: 0,
-    rate4: 0,
-    rate5: 0,
-  });
   const distance = location
     ? calculateDistance(
         location.coords.latitude,
@@ -116,26 +99,10 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
       });
   };
 
-  const getReviewSummary = async () => {
-    axios
-      .get(`${process.env.BASE_URL}/place/review/summary/${placeId}`, {
-        headers: {
-          Authorization: `Bearer ${await AsyncStorage.getItem('token')}`,
-        },
-      })
-      .then((response) => {
-        setReviewSummary(response.data);
-      })
-      .catch((error) => {
-        console.error(`getReviewSummary error ${error}`);
-      });
-  };
-
   useEffect(() => {
     getPlace();
     getFavorite();
     getReview();
-    getReviewSummary();
   }, []);
 
   const handleFavorite = async () => {
@@ -188,7 +155,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         }
       )
       .then((response) => {
-        getPlace();
+        getReview();
       })
       .catch((error) => {
         console.error(`handleReviewSubmit error ${error}`);

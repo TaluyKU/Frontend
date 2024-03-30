@@ -1,12 +1,15 @@
-import { SafeAreaView, StyleSheet } from "react-native";
-import AppNav from "#src/navigation/AppNav";
-import { AuthProvider } from "#src/auth/context/AuthContext";
+import { StyleSheet } from 'react-native';
+import AppNav from '#src/navigation/AppNav';
+import { AuthProvider } from '#src/auth/context/AuthContext';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const App = () => {
   return (
-    <AuthProvider>
-      <AppNav />
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <AppNav />
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 };
 
