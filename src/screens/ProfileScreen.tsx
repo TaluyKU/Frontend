@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import React, { useContext, useState, useEffect } from "react";
+import { StyleSheet } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
 import {
   Avatar,
   Text,
@@ -10,12 +10,12 @@ import {
   PanningProvider,
   TextField,
   Button,
-} from "react-native-ui-lib";
-import { AuthContext } from "#src/auth/context/AuthContext";
-import Colors from "#src/constants/Colors";
-import axios from "axios";
-import { UserInfoProps } from "#src/interfaces/UserInfoInterface";
-import * as ImagePicker from "expo-image-picker";
+} from 'react-native-ui-lib';
+import { AuthContext } from '#src/auth/context/AuthContext';
+import Colors from '#src/constants/Colors';
+import axios from 'axios';
+import { UserInfoProps } from '#src/interfaces/UserInfoInterface';
+import * as ImagePicker from 'expo-image-picker';
 
 //TODO: Edit Profile
 //TODO: Upload Profile Picture
@@ -25,23 +25,21 @@ import * as ImagePicker from "expo-image-picker";
 
 const ProfileScreen = () => {
   const [user, setUser] = useState<UserInfoProps>({
-    avatar: "",
-    email: "",
-    id: "",
-    name: "",
-    phone: "",
+    avatar: '',
+    email: '',
+    id: '',
+    name: '',
+    phone: '',
   });
   const { logout, userToken } = useContext(AuthContext);
   const [editProfile, setEditProfile] = useState(false);
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [dialogMessage, setDialogMessage] = useState<string>("");
-  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>(
-    ""
-  );
-  const [selectedImageUri, setSelectedImageUri] = useState<string>("");
+  const [dialogMessage, setDialogMessage] = useState<string>('');
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string | null>('');
+  const [selectedImageUri, setSelectedImageUri] = useState<string>('');
   const [isEditAvatar, setIsEditAvatar] = useState<boolean>(false);
-  const [name, setName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
+  const [name, setName] = useState<string>('');
+  const [phone, setPhone] = useState<string>('');
 
   const getUserInfo = async () => {
     await axios
@@ -66,8 +64,8 @@ const ProfileScreen = () => {
 
   const handlePickAvatar = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("กรุณาอนุญาตการเข้าถึงรูปภาพ");
+    if (status !== 'granted') {
+      alert('กรุณาอนุญาตการเข้าถึงรูปภาพ');
     } else {
       let result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -87,7 +85,7 @@ const ProfileScreen = () => {
   // FIXME: Try use skip type checking for form data when use image URI
   const handleUploadAvatar = async () => {
     if (!selectedImageBase64) {
-      console.log("No image selected for upload.");
+      console.log('No image selected for upload.');
       return;
     }
     setIsEditAvatar(false);
@@ -100,7 +98,7 @@ const ProfileScreen = () => {
     // Config for the Axios POST request, including headers
     const config = {
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
         Authorization: `Bearer ${userToken}`,
       },
     };
@@ -108,14 +106,14 @@ const ProfileScreen = () => {
     await axios
       .post(`${process.env.BASE_URL}/upload/profile`, payload, config)
       .then((response) => {
-        console.log("Upload successful:", response.data);
+        console.log('Upload successful:', response.data);
         getUserInfo();
         setSelectedImageBase64(null);
-        setSelectedImageUri("");
+        setSelectedImageUri('');
       })
       .catch((response) => {
-        console.error("Upload error:", response);
-        alert("Upload failed. Please try again.");
+        console.error('Upload error:', response);
+        alert('Upload failed. Please try again.');
       });
   };
 
@@ -150,9 +148,9 @@ const ProfileScreen = () => {
       <View style={styles.container}>
         <Avatar
           source={
-            user.avatar != ""
+            user.avatar != ''
               ? { uri: `${process.env.PROFILE_BUCKET_BASE_URL}/${user.avatar}` }
-              : require("#assets/images/avatar-default.png")
+              : require('#assets/images/avatar-default.png')
           }
           size={140}
           containerStyle={styles.avatar}
@@ -167,7 +165,7 @@ const ProfileScreen = () => {
             backgroundColor: Colors.primary,
             borderRadius: 8,
             padding: 20,
-            alignItems: "center",
+            alignItems: 'center',
           }}
         >
           <Avatar
@@ -187,15 +185,15 @@ const ProfileScreen = () => {
 
         <View
           style={{
-            width: "100%",
-            flexDirection: "row",
-            justifyContent: "space-between",
+            width: '100%',
+            flexDirection: 'row',
+            justifyContent: 'space-between',
           }}
         >
           <Text>ประวัติส่วนตัว</Text>
           {editProfile ? (
             <TouchableOpacity
-              style={{ flexDirection: "row", alignItems: "center" }}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
               onPress={() => {
                 saveUserInfo();
               }}
@@ -204,13 +202,13 @@ const ProfileScreen = () => {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              style={{ flexDirection: "row", alignItems: "center" }}
+              style={{ flexDirection: 'row', alignItems: 'center' }}
               onPress={() => {
                 setEditProfile(!editProfile);
               }}
             >
               <Icon
-                source={require("#assets/images/edit-text.png")}
+                source={require('#assets/images/edit-text.png')}
                 size={15}
                 style={{ marginRight: 4 }}
               />
@@ -220,11 +218,11 @@ const ProfileScreen = () => {
         </View>
 
         {editProfile ? (
-          <View style={{ ...styles.boxContainer, height: "21%" }}>
+          <View style={{ ...styles.boxContainer, height: '21%' }}>
             <View style={{ ...styles.profileInfo, borderBottomWidth: 1 }}>
               <View style={styles.iconLabelContainer}>
                 <Icon
-                  source={require("#assets/images/name-icon.png")}
+                  source={require('#assets/images/name-icon.png')}
                   size={20}
                   style={styles.icon}
                 />
@@ -242,7 +240,7 @@ const ProfileScreen = () => {
             <View style={{ ...styles.profileInfo, borderBottomWidth: 1 }}>
               <View style={styles.iconLabelContainer}>
                 <Icon
-                  source={require("#assets/images/telephone.png")}
+                  source={require('#assets/images/telephone.png')}
                   size={20}
                   style={styles.icon}
                 />
@@ -254,34 +252,27 @@ const ProfileScreen = () => {
                 value={user.phone}
                 inputMode="numeric"
                 enableErrors={true}
-                validate={["number", (value: string) => value.length == 10]}
+                validate={['number', (value: string) => value.length == 10]}
                 validateOnChange={true}
-                validationMessage={[
-                  "กรุณากรอกตัวเลขเท่านั้น",
-                  "กรุณากรอกเบอร์โทร 10 หลัก",
-                ]}
+                validationMessage={['กรุณากรอกตัวเลขเท่านั้น', 'กรุณากรอกเบอร์โทร 10 หลัก']}
                 validationMessagePosition="top"
                 onChangeText={(text) => setUser({ ...user, phone: text })}
               />
             </View>
             <View style={{ ...styles.profileInfo, borderBottomWidth: 0 }}>
               <View style={styles.iconLabelContainer}>
-                <Icon
-                  source={require("#assets/images/email.png")}
-                  size={20}
-                  style={styles.icon}
-                />
+                <Icon source={require('#assets/images/email.png')} size={20} style={styles.icon} />
                 <Text>อีเมล</Text>
               </View>
               <Text>{user.email}</Text>
             </View>
           </View>
         ) : (
-          <View style={{ ...styles.boxContainer, height: "21%" }}>
+          <View style={{ ...styles.boxContainer, height: '21%' }}>
             <View style={{ ...styles.profileInfo, borderBottomWidth: 1 }}>
               <View style={styles.iconLabelContainer}>
                 <Icon
-                  source={require("#assets/images/name-icon.png")}
+                  source={require('#assets/images/name-icon.png')}
                   size={20}
                   style={styles.icon}
                 />
@@ -292,7 +283,7 @@ const ProfileScreen = () => {
             <View style={{ ...styles.profileInfo, borderBottomWidth: 1 }}>
               <View style={styles.iconLabelContainer}>
                 <Icon
-                  source={require("#assets/images/telephone.png")}
+                  source={require('#assets/images/telephone.png')}
                   size={20}
                   style={styles.icon}
                 />
@@ -302,22 +293,18 @@ const ProfileScreen = () => {
             </View>
             <View style={{ ...styles.profileInfo, borderBottomWidth: 0 }}>
               <View style={styles.iconLabelContainer}>
-                <Icon
-                  source={require("#assets/images/email.png")}
-                  size={20}
-                  style={styles.icon}
-                />
-                <Text>อีเมล</Text>
+                <Icon source={require('#assets/images/email.png')} size={20} style={styles.icon} />
+                <Text>ชื่อผู้ใช้</Text>
               </View>
               <Text>{user.email}</Text>
             </View>
           </View>
         )}
 
-        <Text style={{ width: "100%", marginTop: 10 }}>เครื่องมือ</Text>
+        <Text style={{ width: '100%', marginTop: 10 }}>อื่นๆ</Text>
 
-        <View style={{ ...styles.boxContainer, height: "14%" }}>
-          <TouchableOpacity
+        <View style={{ ...styles.boxContainer, height: '7%' }}>
+          {/* <TouchableOpacity
             style={{ ...styles.profileInfo, borderBottomWidth: 1 }}
           >
             <View style={styles.iconLabelContainer}>
@@ -328,7 +315,7 @@ const ProfileScreen = () => {
               ></Icon>
               <Text>รายงานปัญหาและข้อเสนอแนะ</Text>
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             style={styles.profileInfo}
             onPress={() => {
@@ -337,7 +324,7 @@ const ProfileScreen = () => {
           >
             <View style={styles.iconLabelContainer}>
               <Icon
-                source={require("#assets/images/logout.png")}
+                source={require('#assets/images/logout.png')}
                 size={20}
                 style={styles.icon}
               ></Icon>
@@ -365,43 +352,43 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     padding: 20,
   },
   avatar: {
     margin: 20,
   },
   boxContainer: {
-    width: "100%",
+    width: '100%',
     borderRadius: 10,
     backgroundColor: Colors.primary,
-    justifyContent: "space-around",
+    justifyContent: 'space-around',
     margin: 10,
-    height: "7%",
+    height: '7%',
   },
   profileInfo: {
     flex: 1,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     padding: 10,
-    alignItems: "center",
+    alignItems: 'center',
     borderColor: Colors.background,
   },
   iconLabelContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   icon: {
     marginRight: 15,
   },
   textFields: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
     borderBottomWidth: 1,
     borderColor: Colors.highlight,
   },
   textFieldContainer: {
-    width: "60%",
+    width: '60%',
     padding: 5,
   },
 });

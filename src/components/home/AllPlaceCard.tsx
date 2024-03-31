@@ -6,7 +6,7 @@ import { NavigationProp } from '@react-navigation/native';
 import { calculateDistance } from '#src/utils/calculateDistance';
 import { LocationObject } from 'expo-location';
 
-const PlaceRecommendComponent = ({
+const AllPLaceCard = ({
   place,
   navigation,
   location,
@@ -15,6 +15,20 @@ const PlaceRecommendComponent = ({
   navigation: NavigationProp<any>;
   location: LocationObject | null;
 }) => {
+  const changeRateColor = (rate: string) => {
+    if (rate === 'A') {
+      return '#52AC66';
+    } else if (rate === 'B' || rate === 'B+') {
+      return '#87AE54';
+    } else if (rate === 'C' || rate === 'C+') {
+      return '#ADAA54';
+    } else if (rate === 'D' || rate === 'D+') {
+      return '#AD7353';
+    } else if (rate === 'F') {
+      return '#B15555';
+    }
+  };
+
   const range = [
     {
       start: 0,
@@ -83,8 +97,6 @@ const PlaceRecommendComponent = ({
     }
   };
 
-  console.log(place.categories);
-
   return (
     <TouchableOpacity onPress={() => navigation.navigate('Place', { placeId: place._id })}>
       <View style={styles.container}>
@@ -92,25 +104,26 @@ const PlaceRecommendComponent = ({
           source={{ uri: `${process.env.IMAGE_BUCKET_BASE_URL}/${place.images?.[0]}` }}
           style={styles.image}
         />
-        <View style={styles.bottomCard}>
-          <View style={styles.cardNameBlock}>
-            <Text style={styles.title} ellipsizeMode="tail" numberOfLines={1}>
-              {place.name}
-            </Text>
-            <Text style={styles.distant}>{distant}m</Text>
-          </View>
-          <View style={styles.bottomBlock}>
+        <View style={{ marginLeft: 14.12, paddingTop: 6 }}>
+          <Text style={styles.gradeTitle}>{place.name}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             {calculateGarde(place.averageRating) !== '' && (
-              <View style={styles.grade}>
-                <Text style={styles.gradeTitle}>{calculateGarde(place.averageRating)}</Text>
-              </View>
+              <Text
+                style={{
+                  ...styles.gradeTitle,
+                  marginRight: 4,
+                  color: changeRateColor(calculateGarde(place.averageRating)),
+                }}
+              >
+                {calculateGarde(place.averageRating)}
+              </Text>
             )}
-            <View>
-              {place.categories.map((cate) => (
-                <Text style={styles.categoryText}>{cate}</Text>
-              ))}
-            </View>
+            <Text style={styles.countText}>{place.reviewsCountLastMonth} คนให้คะแนน</Text>
           </View>
+          <View style={{ marginTop: 5 }}>
+            <Text style={{ ...styles.categoryText }}>{place.categories.join(',')}</Text>
+          </View>
+          <Text style={styles.distant}>{distant}m</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -118,50 +131,26 @@ const PlaceRecommendComponent = ({
 };
 
 const styles = StyleSheet.create({
-  bottomCard: {
-    width: 170,
-    height: 53,
-    backgroundColor: '#EAE7DCF2',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-  },
   title: { fontSize: 12, width: 90, overflow: 'hidden' },
-  distant: { fontSize: 8, color: '#595959' },
-  cardNameBlock: {
-    alignItems: 'center',
-    height: 15,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 6,
-    paddingLeft: 9.2,
-    width: 152,
-    overflow: 'hidden',
-  },
-  bottomBlock: {
-    alignItems: 'center',
-    height: 16,
-    flexDirection: 'row',
-    marginTop: 6,
-    paddingLeft: 12.2,
-    width: 149,
-    overflow: 'hidden',
-  },
+  distant: { fontSize: 10, color: '#595959', marginTop: 5 },
+
   container: {
-    borderBottomColor: '#cccccc',
-    width: 170,
-    height: 133,
-    marginLeft: 9,
+    width: 350,
+    height: 75,
+    marginTop: 9,
     borderRadius: 7,
     overflow: 'hidden',
+    flexDirection: 'row',
+    backgroundColor: '#EAE7DCF2',
   },
   name: {
     fontSize: 10,
     fontWeight: 'bold',
   },
   image: {
-    width: 170,
-    height: 133,
+    width: 75,
+    height: 75,
+    borderRadius: 7,
   },
   grade: {
     width: 22,
@@ -174,7 +163,8 @@ const styles = StyleSheet.create({
     marginRight: 9.2,
   },
   gradeTitle: { fontSize: 12 },
-  categoryText: { color: '#595959', fontSize: 10, marginRight: 4 },
+  categoryText: { color: '#595959', fontSize: 10 },
+  countText: { color: '#595959', fontSize: 8 },
 });
 
-export default PlaceRecommendComponent;
+export default AllPLaceCard;

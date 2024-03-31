@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ImageBackground, StyleSheet, Animated, ActivityIndicator } from 'react-native';
+import { ImageBackground, StyleSheet, Animated, ActivityIndicator, ScrollView } from 'react-native';
 import { NavigationProp } from '@react-navigation/native';
 import { View, Carousel, Text, Image, Card, TouchableOpacity } from 'react-native-ui-lib';
 import axios, { AxiosResponse } from 'axios';
@@ -8,18 +8,36 @@ import Colors from '#src/constants/Colors';
 import { FlatList } from 'react-native-gesture-handler';
 import PlaceRecommendComponent from '#src/components/home/PlaceRecommend';
 import { useCurrentLocation } from '#src/hooks/useCurrentLocation';
+import AllPLaceCard from '#src/components/home/AllPlaceCard';
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
 }
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
+  // ================== useState ==================
+
   const [transportationData, setTransportationData] = useState<Place[]>([]);
-  const [selectedContent, setSelectedContent] = useState<string>('new');
+  const [selectedContent, setSelectedContent] = useState<string>('ใกล้ฉัน');
   const [recommendedPlaces, setRecommendedPlaces] = useState<Place[]>([]);
+  const [allPlaces, setAllPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
+
   const { location, errorMsg } = useCurrentLocation();
-  const tabs = ['popular', 'nearby', 'new'];
+  const tabs = ['ใกล้ฉัน', 'ยอดนิยม', 'ใหม่'];
+
+  // ================== useEffect ==================
+
+  useEffect(() => {
+    getAllPlace();
+    fetchRecommendedPlaces(selectedContent);
+  }, []);
+
+  useEffect(() => {
+    fetchRecommendedPlaces(selectedContent);
+  }, [selectedContent]);
+
+  // ================== function ==================
 
   const getAllPlace = () => {
     axios
@@ -27,32 +45,26 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       .then((response: AxiosResponse) => {
         const data = response.data;
         setTransportationData(data.slice(0, 3));
+        setAllPlaces(data);
       })
       .catch((error: any) => {
         console.error(`getAllTransportation error ${error}`);
       });
   };
 
-  useEffect(() => {
-    getAllPlace();
-    fetchRecommendedPlaces(selectedContent);
-  }, []);
-
   const fetchRecommendedPlaces = async (type: string) => {
     try {
-      if (type == 'popular') {
-        const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
-        setRecommendedPlaces(response.data);
-        setRecommendedPlaces(response.data);
-      } else if (type == 'nearby' && location) {
+      if (type == 'ใกล้ฉัน' && location) {
         const response = await axios.get(
           `${process.env.BASE_URL}/place/nearby/${location.coords.latitude}/${location.coords.longitude}`
         );
         setRecommendedPlaces(response.data);
+      } else if (type == 'ยอดนิยม') {
+        const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
         setRecommendedPlaces(response.data);
-      } else if (type == 'new') {
+        console.log(response.data);
+      } else if (type == 'ใหม่') {
         const response = await axios.get(`${process.env.BASE_URL}/place/newest`);
-        setRecommendedPlaces(response.data);
         setRecommendedPlaces(response.data);
       }
     } catch (error) {
@@ -61,10 +73,6 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchRecommendedPlaces(selectedContent);
-  }, [selectedContent]);
 
   return (
     <View style={styles.container}>
@@ -96,6 +104,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         })}
       </Carousel>
 
+      {/*  nav bar */}
       <View style={styles.menu}>
         <Card
           style={styles.menuCard}
@@ -143,31 +152,55 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           <Text style={styles.menuText}>จุดถ่ายภาพ</Text>
         </Card>
       </View>
-      <View style={styles.recommendTab}>
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setSelectedContent(tab)}
-            style={[styles.tab, selectedContent === tab && styles.selectedTab]}
-          >
-            <Text style={selectedContent === tab && styles.selectedTabText}>{tab}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <>
+          {/* tab */}
+          <View style={styles.recommendTab}>
+            {tabs.map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                onPress={() => setSelectedContent(tab)}
+                style={[styles.tab, selectedContent === tab && styles.selectedTab]}
+              >
+                <Text style={selectedContent === tab && styles.selectedTabText}>{tab}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-      <View>
-        {loading ? (
-          <ActivityIndicator size="large" color={Colors.primary} />
-        ) : (
-          <FlatList
-            data={recommendedPlaces}
-            renderItem={({ item }) => <PlaceRecommendComponent place={item} />}
-            keyExtractor={(item) => item._id}
-            horizontal
-            style={styles.recommendPlace}
-          />
-        )}
-      </View>
+          <View style={{ marginTop: 10 }}>
+            {loading ? (
+              <ActivityIndicator size="large" color={Colors.primary} />
+            ) : (
+              <FlatList
+                data={recommendedPlaces}
+                contentContainerStyle={styles.contentContainer}
+                renderItem={({ item }) => (
+                  <PlaceRecommendComponent
+                    place={item}
+                    navigation={navigation}
+                    location={location}
+                  />
+                )}
+                keyExtractor={(item) => item._id}
+                horizontal
+                style={styles.recommendPlace}
+              />
+            )}
+          </View>
+
+          <View
+            style={{
+              alignItems: 'center',
+              marginTop: 28,
+              marginBottom: 20,
+            }}
+          >
+            {allPlaces.map((place) => (
+              <AllPLaceCard place={place} navigation={navigation} location={location} />
+            ))}
+          </View>
+        </>
+      </ScrollView>
     </View>
   );
 };
@@ -201,6 +234,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingLeft: 20,
     paddingRight: 20,
+    marginBottom: 10,
   },
   menuCard: {
     width: '18%',
@@ -239,6 +273,10 @@ const styles = StyleSheet.create({
   },
   selectedTabText: {
     color: Colors.highlight,
+    // textDecorationLine: 'underline',
+  },
+  contentContainer: {
+    paddingHorizontal: 10,
   },
 });
 

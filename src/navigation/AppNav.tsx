@@ -12,6 +12,7 @@ import ProfileScreen from '#src/screens/ProfileScreen';
 import SignUpScreen from '#src/screens/SignUpScreen';
 import SearchScreen from '#src/screens/SearchScreen';
 import AddPlaceScreen from '#src/screens/AddPlaceScreen';
+import { Icon } from 'react-native-ui-lib';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -19,16 +20,62 @@ const Tab = createBottomTabNavigator();
 const NavigationTab = () => {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          headerShown: false,
+          title: 'Home',
+          tabBarIcon: ({ size, focused, color }) => {
+            return <Icon source={require('#assets/images/navigate/home.png')} size={20} />;
+          },
+        }}
+      />
       <Tab.Screen
         name="Map"
         component={MapScreen}
         initialParams={{ category: 'All' }}
-        options={{ headerShown: false }}
+        options={{
+          headerShown: false,
+          title: 'Map',
+          tabBarIcon: ({ size, focused, color }) => {
+            return <Icon source={require('#assets/images/navigate/map.png')} size={20} />;
+          },
+        }}
       />
-      <Tab.Screen name="AddPlace" component={AddPlaceScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Search" component={SearchScreen} options={{ headerShown: false }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} options={{ headerShown: false }} />
+      <Tab.Screen
+        name="AddPlace"
+        component={AddPlaceScreen}
+        options={{
+          headerShown: false,
+          title: 'Add Place',
+          tabBarIcon: ({ size, focused, color }) => {
+            return <Icon source={require('#assets/images/navigate/addPlace.png')} size={20} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+          title: 'Search',
+          tabBarIcon: ({ size, focused, color }) => {
+            return <Icon source={require('#assets/images/navigate/search.png')} size={20} />;
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+          title: 'Profile',
+          tabBarIcon: ({ size, focused, color }) => {
+            return <Icon source={require('#assets/images/navigate/profile.png')} size={20} />;
+          },
+        }}
+      />
     </Tab.Navigator>
   );
 };

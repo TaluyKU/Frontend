@@ -78,6 +78,30 @@ const MapScreen = ({ navigation, route }: MapScreenProp) => {
     (place) => selectedCategory === 'All' || place.categories.includes(selectedCategory)
   );
 
+  const renderDialog = (modalProps: any) => {
+    const { visible, children, toggleModal, onDone } = modalProps;
+
+    return (
+      <Incubator.Dialog
+        visible={visible}
+        onDismiss={() => {
+          onDone();
+          toggleModal();
+        }}
+        width="100%"
+        height="60%"
+        bottom
+        containerStyle={{
+          backgroundColor: Colors.background,
+        }}
+        direction={PanningProvider.Directions.DOWN}
+        headerProps={{ title: 'หมวดหมู่' }}
+      >
+        <ScrollView>{children}</ScrollView>
+      </Incubator.Dialog>
+    );
+  };
+
   return (
     <View style={styles.container} useSafeArea>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -85,12 +109,14 @@ const MapScreen = ({ navigation, route }: MapScreenProp) => {
           key={selectedCategory}
           value={selectedCategory}
           onChange={(value: any) => {
-            setSelectedCategory(value);
+            {
+              setSelectedCategory(value);
+            }
           }}
           style={styles.picker}
           useSafeArea
-
           // renderCustomModal={renderDialog}
+          renderCustomModal={renderDialog}
         >
           {categories.map((category, index) => (
             <Picker.Item key={index} label={category} value={category} />

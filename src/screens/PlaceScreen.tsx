@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, Linking } from 'react-native';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 import { Image, Text, TouchableOpacity, View, Icon, Button } from 'react-native-ui-lib';
 import { useCurrentLocation } from '#hooks/useCurrentLocation';
@@ -10,9 +10,7 @@ import { calculateDistance } from '#src/utils/calculateDistance';
 import ReviewModal from '#components/ReviewModal';
 import { Review } from '#src/interfaces/ReviewInterface';
 import Colors from '#src/constants/Colors';
-import { openLink } from '#src/utils/openLink';
-import { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
-import MapView from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 type RootStackParamList = {
   Place: { placeId: string };
@@ -159,11 +157,36 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
       )
       .then((response) => {
         getReview();
+        getPlace();
       })
       .catch((error) => {
         console.error(`handleReviewSubmit error ${error}`);
       });
   };
+  const changeRateColor = (rate: string) => {
+    if (rate === 'A') {
+      return '#52AC66';
+    } else if (rate === 'B' || rate === 'B+') {
+      return '#87AE54';
+    } else if (rate === 'C' || rate === 'C+') {
+      return '#ADAA54';
+    } else if (rate === 'D' || rate === 'D+') {
+      return '#AD7353';
+    } else if (rate === 'F') {
+      return '#B15555';
+    }
+  };
+
+  const openLink = async (url: string) => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      alert(`ไม่สามารถเปิดลิ้งได้`);
+    }
+  };
+
+  const rateColor = changeRateColor(place.averageRatingLabel);
 
   return (
     <ScrollView style={styles.container}>
@@ -182,8 +205,36 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         <Text style={styles.title}>{place.name}</Text>
         <Text style={styles.distance}>{distance} m</Text>
         <Text style={styles.info}>{place.generalInfo}</Text>
-        <Text text50>{place.averageRatingLabel}</Text>
-        <Text text70>{review.length}</Text>
+        {review.length != 0 && (
+          <View style={styles.rating}>
+            <Text
+              text70
+              style={{
+                marginRight: 10,
+                borderColor: rateColor,
+                borderWidth: 1,
+                borderRadius: 3,
+                bottom: 3,
+                paddingRight: 4,
+                paddingLeft: 4,
+                color: rateColor,
+                fontWeight: '700',
+              }}
+            >
+              {place.averageRatingLabel}
+            </Text>
+            <Text text70>{review.length} ratings</Text>
+          </View>
+        )}
+        <View
+          style={{
+            width: 350,
+            backgroundColor: 'rgba(164, 164, 164, 1)',
+            height: 1,
+            marginBottom: 10,
+            marginTop: 10,
+          }}
+        ></View>
         <TouchableOpacity style={styles.favorite} onPress={handleFavorite}>
           {isFavorite ? (
             <Icon source={require('#assets/images/place/badge-color.png')} size={30} />
@@ -318,6 +369,10 @@ const styles = StyleSheet.create({
   info: {
     marginBottom: 16,
   },
+  rating: {
+    flex: 1,
+    flexDirection: 'row',
+  },
   imageContainer: {
     flexDirection: 'row',
     marginBottom: 16,
@@ -329,6 +384,9 @@ const styles = StyleSheet.create({
   },
   section: {
     marginBottom: 16,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   sectionTitle: {
     fontWeight: 'bold',
@@ -339,16 +397,24 @@ const styles = StyleSheet.create({
     right: 20,
   },
   review: {
-    backgroundColor: Colors.background,
-    marginBottom: 16,
+    backgroundColor: '#F8F5E8',
+    marginTop: 16,
     borderColor: 'black',
     borderWidth: 1,
-    borderRadius: 5,
+    borderRadius: 10,
     padding: 10,
     shadowColor: '#000',
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
+  },
+  map: {
+    width: '100%',
+    height: 120,
+    borderColor: Colors.outline,
+    borderWidth: 0.5,
+    borderRadius: 10,
+    marginBottom: 15,
   },
 });
 

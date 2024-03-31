@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { View, TextField, Button, Text } from 'react-native-ui-lib';
+import React, { useCallback, useEffect, useState } from 'react';
+import { ScrollView, StyleSheet, FlatList } from 'react-native';
+import { View, TextField, Button, Text, Incubator, PanningProvider } from 'react-native-ui-lib';
 import axios from 'axios';
 import { Place } from '#src/interfaces/PlaceInterface';
 import MapView, { Marker, PROVIDER_GOOGLE, LatLng } from 'react-native-maps';
@@ -11,15 +11,61 @@ import MultiSelectDialog from '#src/components/MultiSelectDialog';
 import TagInputComponent from '#src/components/TagsInput';
 
 const AddPlaceScreen = () => {
+  let { location } = useCurrentLocation();
   const [place, setPlace] = useState<Partial<Place>>({
-    location: { latitude: 0, longitude: 0 },
-    categories: [],
+    location: {
+      latitude: 0,
+      longitude: 0,
+    },
+    categories: ['ห้องน้ำ'],
   });
+  const [selectedLocation, setSelectedLocation] = useState<LatLng>({
+    latitude: 0,
+    longitude: 0,
+  });
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [date, setDate] = useState<string[]>([]);
+  const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isSelectDate, setIsSelectDate] = useState(false);
+  const [isSelectCategory, setIsSelectCategory] = useState(false);
+
+  useEffect(() => {
+    if (location) {
+      setPlace({
+        ...place,
+        location: {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        },
+      });
+      setSelectedLocation({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+      fetchCategories();
+    }
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${process.env.BASE_URL}/category/all`);
+      setCategories(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
-      const response = await axios.post(`${process.env.BASE_URL}/place/add`, place);
-      console.log('Success:', response.data);
+      if (!place.name || !place.location || !place.categories) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      genWeeklySchedule();
+      const uploadedPlace = await axios.post(`${process.env.BASE_URL}/place/create`, place);
+      console.log('Uploaded:', uploadedPlace.data);
+      handleUploadImage(uploadedPlace.data._id);
     } catch (error) {
       console.error('Error submitting place:', error);
     }
