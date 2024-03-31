@@ -10,6 +10,9 @@ import { calculateDistance } from '#src/utils/calculateDistance';
 import ReviewModal from '#components/ReviewModal';
 import { Review } from '#src/interfaces/ReviewInterface';
 import Colors from '#src/constants/Colors';
+import { openLink } from '#src/utils/openLink';
+import { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import MapView from 'react-native-maps';
 
 type RootStackParamList = {
   Place: { placeId: string };
