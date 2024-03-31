@@ -158,14 +158,17 @@ const MapScreen = ({ navigation, route }: MapScreenProp) => {
                 }}
                 title={place.name}
               >
-                <Callout onPress={() => navigation.navigate('Place', { placeId: place._id })}>
+                <Callout
+                  style={{ borderRadius: 10 }}
+                  onPress={() => navigation.navigate('Place', { placeId: place._id })}
+                >
                   <View style={styles.calloutView}>
                     {place.images && (
                       <Image
                         source={{
                           uri: `${process.env.IMAGE_BUCKET_BASE_URL}/${place.images[0]}`,
                         }}
-                        style={{ width: 200, height: 100 }}
+                        style={{ width: '100%', height: 100, borderRadius: 5 }}
                       />
                     )}
                     <Text style={styles.calloutTitle}>{place.name}</Text>
@@ -199,6 +202,7 @@ const styles = StyleSheet.create({
   calloutView: {
     width: 200, // Adjust based on content
     padding: 10,
+    borderRadius: 10,
   },
   calloutTitle: {
     fontWeight: 'bold',

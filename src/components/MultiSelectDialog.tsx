@@ -32,7 +32,9 @@ const MultiSelectDialog = ({
         label={title}
         outline
         outlineColor={Colors.highlight}
+        size="small"
         onPress={() => setIsDialogVisible(true)}
+        style={{ width: '35%', marginBottom: 10 }}
       />
       <Incubator.Dialog
         visible={isDialogVisible}

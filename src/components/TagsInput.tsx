@@ -1,3 +1,4 @@
+import Colors from '#src/constants/Colors';
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity } from 'react-native';
 
@@ -39,18 +40,6 @@ const TagInputComponent = ({ selectedItems, setSelectedItems, placeHolder }: Tag
 
   return (
     <View style={styles.container}>
-      <View style={styles.tagContainer}>
-        {selectedItems.map((tag, index) => (
-          <View key={index} style={styles.tagWrapper}>
-            <TouchableOpacity onPress={() => editTag(index)} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => removeTag(index)} style={styles.removeButton}>
-              <Text style={styles.removeButtonText}>X</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </View>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -63,21 +52,26 @@ const TagInputComponent = ({ selectedItems, setSelectedItems, placeHolder }: Tag
           <Text style={styles.buttonText}>{editIndex !== null ? 'Update' : 'Add'}</Text>
         </TouchableOpacity>
       </View>
+      <View style={styles.tagContainer}>
+        {selectedItems.map((tag, index) => (
+          <View key={index} style={styles.tagWrapper}>
+            <TouchableOpacity onPress={() => editTag(index)} style={styles.tag}>
+              <Text style={styles.tagText}>{tag}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => removeTag(index)} style={styles.removeButton}>
+              <Text style={styles.removeButtonText}>X</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  appContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#F5F5F5',
-  },
   container: {
     width: '100%',
-    paddingHorizontal: 20,
+    marginBottom: 10,
   },
   tagContainer: {
     flexDirection: 'row',
@@ -91,25 +85,25 @@ const styles = StyleSheet.create({
     marginRight: 5,
   },
   tag: {
-    backgroundColor: '#ccc',
-    borderRadius: 20,
+    backgroundColor: Colors.highlight,
+    borderRadius: 15,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
   tagText: {
     color: 'black',
-    fontWeight: 'bold',
-    fontSize: 17,
+    fontSize: 13,
   },
   removeButton: {
     marginLeft: 5,
-    padding: 5,
+    paddingHorizontal: 4,
+    apddingVertical: 1,
     borderRadius: 10,
     backgroundColor: '#E53935',
   },
   removeButtonText: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 13,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -118,10 +112,10 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     height: 40,
-    borderColor: '#CCCCCC',
+    borderColor: Colors.outline,
     borderWidth: 1,
     paddingHorizontal: 10,
-    borderRadius: 5,
+    borderRadius: 8,
     marginRight: 10,
     backgroundColor: '#FFFFFF',
   },

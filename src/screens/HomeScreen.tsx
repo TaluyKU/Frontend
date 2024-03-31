@@ -9,6 +9,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import PlaceRecommendComponent from '#src/components/home/PlaceRecommend';
 import { useCurrentLocation } from '#src/hooks/useCurrentLocation';
 import AllPLaceCard from '#src/components/home/AllPlaceCard';
+import { changeRateColor, mapScoreToLabel } from '#src/utils/mapRate';
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
@@ -22,15 +23,16 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const [recommendedPlaces, setRecommendedPlaces] = useState<Place[]>([]);
   const [allPlaces, setAllPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
-
   const { location, errorMsg } = useCurrentLocation();
   const tabs = ['ใกล้ฉัน', 'ยอดนิยม', 'ใหม่'];
+  const [landmarkData, setLandmarkData] = useState<Place[]>([]);
 
   // ================== useEffect ==================
 
   useEffect(() => {
     getAllPlace();
     fetchRecommendedPlaces(selectedContent);
+    getLandmark();
   }, []);
 
   useEffect(() => {
@@ -45,7 +47,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       .then((response: AxiosResponse) => {
         const data = response.data;
         setTransportationData(data.slice(0, 3));
-        setAllPlaces(data);
+        setAllPlaces(data.slice(0, 10));
       })
       .catch((error: any) => {
         console.error(`getAllTransportation error ${error}`);
@@ -62,7 +64,6 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
       } else if (type == 'ยอดนิยม') {
         const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
         setRecommendedPlaces(response.data);
-        console.log(response.data);
       } else if (type == 'ใหม่') {
         const response = await axios.get(`${process.env.BASE_URL}/place/newest`);
         setRecommendedPlaces(response.data);
@@ -72,6 +73,18 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getLandmark = () => {
+    axios
+      .get(`${process.env.BASE_URL}/place/category/แลนด์มาร์ค`)
+      .then((response: AxiosResponse) => {
+        const data = response.data;
+        setLandmarkData(data);
+      })
+      .catch((error: any) => {
+        console.error(`getLandmark error ${error}`);
+      });
   };
 
   return (
@@ -84,22 +97,28 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         loop
         pageControlPosition={Carousel.pageControlPositions.OVER}
       >
-        {transportationData.map((item, index) => {
+        {landmarkData.map((item, index) => {
+          const rateColor = changeRateColor(item.averageRatingLabel);
           return (
-            <View key={index} style={styles.carouselCard}>
+            <TouchableOpacity
+              key={index}
+              style={styles.carouselCard}
+              onPress={() => navigation.navigate('Place', { placeId: item._id })}
+            >
               <ImageBackground
                 source={{
                   uri: item.images && `${process.env.IMAGE_BUCKET_BASE_URL}/${item.images[0]}`,
                 }}
                 style={styles.carouselImage}
                 resizeMode="cover"
-              >
-                <View useSafeArea>
-                  <Text style={styles.carouselText}>{item.name}</Text>
-                  <Text style={styles.carouselText}>{item.generalInfo}</Text>
-                </View>
-              </ImageBackground>
-            </View>
+              ></ImageBackground>
+              <View useSafeArea>
+                <Text style={{ ...styles.carouselText, fontWeight: 'bold', fontSize: 30 }}>
+                  {item.name}
+                </Text>
+                <Text style={styles.carouselText}>{item.generalInfo}</Text>
+              </View>
+            </TouchableOpacity>
           );
         })}
       </Carousel>
@@ -156,9 +175,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         <>
           {/* tab */}
           <View style={styles.recommendTab}>
-            {tabs.map((tab) => (
+            {tabs.map((tab, index) => (
               <TouchableOpacity
-                key={tab}
+                key={index}
                 onPress={() => setSelectedContent(tab)}
                 style={[styles.tab, selectedContent === tab && styles.selectedTab]}
               >
@@ -168,35 +187,32 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           </View>
 
           <View style={{ marginTop: 10 }}>
-            {loading ? (
-              <ActivityIndicator size="large" color={Colors.primary} />
-            ) : (
-              <FlatList
-                data={recommendedPlaces}
-                contentContainerStyle={styles.contentContainer}
-                renderItem={({ item }) => (
-                  <PlaceRecommendComponent
-                    place={item}
-                    navigation={navigation}
-                    location={location}
-                  />
-                )}
-                keyExtractor={(item) => item._id}
-                horizontal
-                style={styles.recommendPlace}
-              />
-            )}
+            <FlatList
+              data={recommendedPlaces}
+              contentContainerStyle={styles.contentContainer}
+              renderItem={({ item, index }) => (
+                <PlaceRecommendComponent
+                  key={index}
+                  place={item}
+                  navigation={navigation}
+                  location={location}
+                />
+              )}
+              keyExtractor={(item) => item._id}
+              horizontal
+              style={styles.recommendPlace}
+            />
           </View>
 
           <View
             style={{
               alignItems: 'center',
-              marginTop: 28,
+              marginTop: 18,
               marginBottom: 20,
             }}
           >
-            {allPlaces.map((place) => (
-              <AllPLaceCard place={place} navigation={navigation} location={location} />
+            {allPlaces.map((place, index) => (
+              <AllPLaceCard key={index} place={place} navigation={navigation} location={location} />
             ))}
           </View>
         </>
@@ -222,10 +238,13 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     alignSelf: 'center',
+    position: 'absolute',
+    opacity: 0.5,
   },
   carouselText: {
     left: 20,
     fontSize: 20,
+    flexWrap: 'wrap',
   },
   menu: {
     width: '100%',
@@ -259,7 +278,9 @@ const styles = StyleSheet.create({
   menuText: {
     fontSize: 10,
   },
-  recommendPlace: {},
+  recommendPlace: {
+    paddingBottom: 10,
+  },
   recommendTab: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -281,5 +302,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
-//TODO: map cate กดไม่ได้

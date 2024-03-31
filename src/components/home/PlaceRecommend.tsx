@@ -83,8 +83,6 @@ const PlaceRecommendComponent = ({
     }
   };
 
-  console.log(place.categories);
-
   return (
     <TouchableOpacity onPress={() => navigation.navigate('Place', { placeId: place._id })}>
       <View style={styles.container}>
@@ -105,9 +103,11 @@ const PlaceRecommendComponent = ({
                 <Text style={styles.gradeTitle}>{calculateGarde(place.averageRating)}</Text>
               </View>
             )}
-            <View>
-              {place.categories.map((cate) => (
-                <Text style={styles.categoryText}>{cate}</Text>
+            <View row>
+              {place.categories.slice(0, 2).map((cate, index) => (
+                <Text key={index} style={styles.categoryText}>
+                  {cate}
+                </Text>
               ))}
             </View>
           </View>

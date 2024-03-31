@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
-  KeyboardAvoidingView,
   Modal,
   StyleSheet,
   Platform,
-} from "react-native";
-import { View, Text, TouchableOpacity, TextField } from "react-native-ui-lib";
+  KeyboardAvoidingView,
+  View,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
+import { TextField } from 'react-native-ui-lib';
 
 interface ReviewModalProps {
   isVisible: boolean;
@@ -13,19 +16,32 @@ interface ReviewModalProps {
   onSubmit: (rating: string, comment: string) => void;
 }
 
-const ReviewModal = ({ isVisible, onClose, onSubmit }: ReviewModalProps) => {
-  const [rating, setRating] = useState<string>("");
-  const [comment, setComment] = useState<string>("");
+const ReviewModal: React.FC<ReviewModalProps> = ({ isVisible, onClose, onSubmit }) => {
+  const [rating, setRating] = useState<string>('');
+  const [comment, setComment] = useState<string>('');
 
   const handleSubmit = () => {
     onSubmit(rating, comment);
-    onClose(); // Close modal after submit
+    onClose();
   };
+
+  interface RatingOptionProps {
+    score: string;
+  }
+
+  const RatingOption: React.FC<RatingOptionProps> = ({ score }) => (
+    <TouchableOpacity
+      style={[styles.ratingOption, rating === score && styles.selectedRatingOption]}
+      onPress={() => setRating(score)}
+    >
+      <Text style={styles.ratingText}>{score}</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <Modal visible={isVisible} animationType="slide" transparent={true}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.centeredView}
       >
         <View style={styles.modalView}>
@@ -33,13 +49,11 @@ const ReviewModal = ({ isVisible, onClose, onSubmit }: ReviewModalProps) => {
             <Text>Close</Text>
           </TouchableOpacity>
 
-          <TextField
-            style={styles.input}
-            placeholder="Rating (1-5)"
-            keyboardType="numeric"
-            value={rating}
-            onChangeText={setRating}
-          />
+          <View style={styles.ratingContainer}>
+            {['1', '2', '3', '4', '5'].map((score) => (
+              <RatingOption key={score} score={score} />
+            ))}
+          </View>
 
           <TextField
             style={styles.input}
@@ -61,16 +75,16 @@ const ReviewModal = ({ isVisible, onClose, onSubmit }: ReviewModalProps) => {
 const styles = StyleSheet.create({
   centeredView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   modalView: {
     margin: 20,
-    backgroundColor: "white",
+    backgroundColor: 'white',
     borderRadius: 20,
     padding: 35,
-    alignItems: "center",
-    shadowColor: "#000",
+    alignItems: 'center',
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
@@ -78,26 +92,42 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: "80%",
+    width: '80%',
   },
   closeButton: {
-    alignSelf: "flex-end",
+    alignSelf: 'flex-end',
     marginBottom: 20,
   },
   input: {
-    width: 150,
-    height: 25,
+    width: 200,
+    minHeight: 40,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: '#ccc',
     padding: 10,
   },
   submitButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: '#2196F3',
     padding: 10,
     borderRadius: 5,
   },
-  // Add more styles as needed
+  ratingContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  ratingOption: {
+    padding: 10,
+    marginHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  selectedRatingOption: {
+    borderColor: '#2196F3',
+  },
+  ratingText: {
+    textAlign: 'center',
+  },
 });
 
 export default ReviewModal;

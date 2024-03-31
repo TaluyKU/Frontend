@@ -11,6 +11,7 @@ import ReviewModal from '#components/ReviewModal';
 import { Review } from '#src/interfaces/ReviewInterface';
 import Colors from '#src/constants/Colors';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { mapScoreToLabel, changeRateColor } from '#src/utils/mapRate';
 
 type RootStackParamList = {
   Place: { placeId: string };
@@ -163,19 +164,6 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         console.error(`handleReviewSubmit error ${error}`);
       });
   };
-  const changeRateColor = (rate: string) => {
-    if (rate === 'A') {
-      return '#52AC66';
-    } else if (rate === 'B' || rate === 'B+') {
-      return '#87AE54';
-    } else if (rate === 'C' || rate === 'C+') {
-      return '#ADAA54';
-    } else if (rate === 'D' || rate === 'D+') {
-      return '#AD7353';
-    } else if (rate === 'F') {
-      return '#B15555';
-    }
-  };
 
   const openLink = async (url: string) => {
     const supported = await Linking.canOpenURL(url);
@@ -223,7 +211,31 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
             >
               {place.averageRatingLabel}
             </Text>
-            <Text text70>{review.length} ratings</Text>
+            <Text text70>{review.length} คนให้คะแนน</Text>
+          </View>
+        )}
+        {place.categories.length != 0 && (
+          <View style={styles.section}>
+            {/* <Icon source={require('#assets/images/place/category.png')} size={20} /> */}
+            <View style={{ flexDirection: 'row' }}>
+              {place.categories.map((category, index) => (
+                <View row>
+                  {/* {index != 0 && <Text>,</Text>} */}
+                  <Text
+                    key={index}
+                    style={{
+                      marginRight: 5,
+                      borderRadius: 5,
+                      borderWidth: 1,
+                      borderColor: Colors.highlight,
+                      padding: 2,
+                    }}
+                  >
+                    {category}
+                  </Text>
+                </View>
+              ))}
+            </View>
           </View>
         )}
         <View
@@ -338,13 +350,47 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
           onClose={() => setReviewModalVisible(false)}
           onSubmit={handleReviewSubmit}
         />
-        {review.map((review, index) => (
-          <View key={index} style={styles.review}>
-            <Text>{`User: ${review.userId}`}</Text>
-            <Text>{`Rating: ${review.rating}`}</Text>
-            <Text>{`Comment: ${review.comment}`}</Text>
-          </View>
-        ))}
+        {review.map((review, index) => {
+          const rateLabel = mapScoreToLabel(review.rating);
+          const rateColor = changeRateColor(rateLabel);
+          return (
+            <View key={index} style={styles.review}>
+              <View style={{ flexDirection: 'row', marginBottom: 10 }}>
+                <Icon
+                  source={{
+                    uri: `${process.env.PROFILE_BUCKET_BASE_URL}/${review.userInfo?.avatar}`,
+                  }}
+                  size={36}
+                  style={{ borderRadius: 18, marginRight: 10 }}
+                />
+                <View>
+                  <Text
+                    style={{ fontSize: 13, marginBottom: 2 }}
+                  >{`${review.userInfo?.name}`}</Text>
+                  <View style={{ flexWrap: 'wrap' }}>
+                    <Text
+                      style={{
+                        borderColor: rateColor,
+                        borderWidth: 1,
+                        borderRadius: 3,
+                        paddingRight: 4,
+                        paddingLeft: 4,
+                        color: rateColor,
+                        fontWeight: '700',
+                        fontSize: 13,
+                      }}
+                    >
+                      {rateLabel}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              <View>
+                <Text style={{ marginLeft: 46 }}>{review.comment}</Text>
+              </View>
+            </View>
+          );
+        })}
       </View>
     </ScrollView>
   );
@@ -372,6 +418,7 @@ const styles = StyleSheet.create({
   rating: {
     flex: 1,
     flexDirection: 'row',
+    marginBottom: 8,
   },
   imageContainer: {
     flexDirection: 'row',
