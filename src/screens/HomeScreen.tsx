@@ -15,11 +15,11 @@ interface HomeScreenProps {
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const [transportationData, setTransportationData] = useState<Place[]>([]);
-  const [selectedContent, setSelectedContent] = useState<string>('new');
+  const [selectedContent, setSelectedContent] = useState<string>('ใกล้ฉัน');
   const [recommendedPlaces, setRecommendedPlaces] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const { location, errorMsg } = useCurrentLocation();
-  const tabs = ['popular', 'nearby', 'new'];
+  const tabs = ['ใกล้ฉัน', 'ยอดนิยม', 'ใหม่'];
 
   const getAllPlace = () => {
     axios
@@ -40,17 +40,17 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
   const fetchRecommendedPlaces = async (type: string) => {
     try {
-      if (type == 'popular') {
-        const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
-        setRecommendedPlaces(response.data);
-        setRecommendedPlaces(response.data);
-      } else if (type == 'nearby' && location) {
+      if (type == 'ใกล้ฉัน' && location) {
         const response = await axios.get(
           `${process.env.BASE_URL}/place/nearby/${location.coords.latitude}/${location.coords.longitude}`
         );
         setRecommendedPlaces(response.data);
         setRecommendedPlaces(response.data);
-      } else if (type == 'new') {
+      } else if (type == 'ยอดนิยม') {
+        const response = await axios.get(`${process.env.BASE_URL}/place/popular`);
+        setRecommendedPlaces(response.data);
+        setRecommendedPlaces(response.data);
+      } else if (type == 'ใหม่') {
         const response = await axios.get(`${process.env.BASE_URL}/place/newest`);
         setRecommendedPlaces(response.data);
         setRecommendedPlaces(response.data);
@@ -161,7 +161,9 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
         ) : (
           <FlatList
             data={recommendedPlaces}
-            renderItem={({ item }) => <PlaceRecommendComponent place={item} />}
+            renderItem={({ item }) => (
+              <PlaceRecommendComponent place={item} navigation={navigation} />
+            )}
             keyExtractor={(item) => item._id}
             horizontal
             style={styles.recommendPlace}

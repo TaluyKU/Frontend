@@ -1,19 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
 import {
   View,
   TouchableOpacity,
   Text,
   Image,
   Picker,
-} from "react-native-ui-lib";
-import MapView, { PROVIDER_GOOGLE, Marker, Callout } from "react-native-maps";
-import axios from "axios";
-import { calculateDistance } from "#src/utils/calculateDistance";
-import { useCurrentLocation } from "#src/hooks/useCurrentLocation";
-import { NavigationProp, RouteProp } from "@react-navigation/native";
-import { Place } from "#src/interfaces/PlaceInterface";
-import { PulsatingMarker } from "#src/components/PulsatingMarker";
+  Incubator,
+  PanningProvider,
+} from 'react-native-ui-lib';
+import MapView, { PROVIDER_GOOGLE, Marker, Callout } from 'react-native-maps';
+import axios from 'axios';
+import { calculateDistance } from '#src/utils/calculateDistance';
+import { useCurrentLocation } from '#src/hooks/useCurrentLocation';
+import { NavigationProp, RouteProp } from '@react-navigation/native';
+import { Place } from '#src/interfaces/PlaceInterface';
+import { PulsatingMarker } from '#src/components/PulsatingMarker';
+import Colors from '#src/constants/Colors';
 
 const CARD_HEIGHT = 220;
 const CARD_WIDTH = 430 * 0.8;
@@ -25,17 +28,15 @@ interface RootStackParamList {
 }
 
 interface MapScreenProp {
-  route: RouteProp<RootStackParamList, "Map">;
-  navigation: NavigationProp<RootStackParamList, "Map">;
+  route: RouteProp<RootStackParamList, 'Map'>;
+  navigation: NavigationProp<RootStackParamList, 'Map'>;
 }
 
 const MapScreen = ({ navigation, route }: MapScreenProp) => {
   const [places, setPlaces] = useState<Place[]>([]);
   const { location } = useCurrentLocation();
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    route.params.category
-  );
-  const [categories, setCategories] = useState<string[]>(["All"]);
+  const [selectedCategory, setSelectedCategory] = useState<string>(route.params.category);
+  const [categories, setCategories] = useState<string[]>(['All']);
 
   const center = location
     ? {
@@ -47,16 +48,14 @@ const MapScreen = ({ navigation, route }: MapScreenProp) => {
   useEffect(() => {
     const fetchPlacesAndCategories = async () => {
       try {
-        const placesResponse = await axios.get<Place[]>(
-          `${process.env.BASE_URL}/place/all`
-        );
+        const placesResponse = await axios.get<Place[]>(`${process.env.BASE_URL}/place/all`);
         setPlaces(placesResponse.data);
         const categoriesResponse = await axios.get<string[]>(
           `${process.env.BASE_URL}/category/all`
         );
-        setCategories(["All", ...categoriesResponse.data]);
+        setCategories(['All', ...categoriesResponse.data]);
       } catch (error) {
-        console.error("Fetching data error:", error);
+        console.error('Fetching data error:', error);
       }
     };
 
@@ -68,17 +67,43 @@ const MapScreen = ({ navigation, route }: MapScreenProp) => {
   }, [route.params.category]);
 
   const filteredPlaces = places.filter(
-    (place) =>
-      selectedCategory === "All" || place.categories.includes(selectedCategory)
+    (place) => selectedCategory === 'All' || place.categories.includes(selectedCategory)
   );
+
+  const renderDialog = (modalProps: any) => {
+    const { visible, children, toggleModal, onDone } = modalProps;
+
+    return (
+      <Incubator.Dialog
+        visible={visible}
+        onDismiss={() => {
+          onDone();
+          toggleModal();
+        }}
+        width="100%"
+        height="60%"
+        bottom
+        containerStyle={{
+          backgroundColor: Colors.background,
+        }}
+        direction={PanningProvider.Directions.DOWN}
+        headerProps={{ title: 'หมวดหมู่' }}
+      >
+        <ScrollView>{children}</ScrollView>
+      </Incubator.Dialog>
+    );
+  };
 
   return (
     <View style={styles.container} useSafeArea>
       <Picker
         key={selectedCategory}
         value={selectedCategory}
-        onChange={(value: any) => setSelectedCategory(value)}
+        onChange={(value: any) => {
+          setSelectedCategory(value);
+        }}
         style={styles.picker}
+        renderCustomModal={renderDialog}
       >
         {categories.map((category, index) => (
           <Picker.Item key={index} label={category} value={category} />
@@ -115,11 +140,7 @@ const MapScreen = ({ navigation, route }: MapScreenProp) => {
                 }}
                 title={place.name}
               >
-                <Callout
-                  onPress={() =>
-                    navigation.navigate("Place", { placeId: place._id })
-                  }
-                >
+                <Callout onPress={() => navigation.navigate('Place', { placeId: place._id })}>
                   <View style={styles.calloutView}>
                     {place.images && (
                       <Image
@@ -155,22 +176,22 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   calloutTitle: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     marginBottom: 5,
   },
   calloutButton: {
     marginTop: 10,
-    backgroundColor: "#007bff",
+    backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 5,
   },
   calloutButtonText: {
-    color: "#ffffff",
-    textAlign: "center",
+    color: '#ffffff',
+    textAlign: 'center',
   },
   picker: {
     height: 50,
-    width: "100%",
+    width: '100%',
   },
 });
 

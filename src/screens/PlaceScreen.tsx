@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Dimensions, ScrollView } from 'react-native';
+import { StyleSheet, Dimensions, ScrollView, Linking } from 'react-native';
 import { NavigationProp, RouteProp } from '@react-navigation/native';
 import { Image, Text, TouchableOpacity, View, Icon, Button } from 'react-native-ui-lib';
 import { useCurrentLocation } from '#hooks/useCurrentLocation';
@@ -10,6 +10,7 @@ import { calculateDistance } from '#src/utils/calculateDistance';
 import ReviewModal from '#components/ReviewModal';
 import { Review } from '#src/interfaces/ReviewInterface';
 import Colors from '#src/constants/Colors';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
 type RootStackParamList = {
   Place: { placeId: string };
@@ -156,6 +157,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
       )
       .then((response) => {
         getReview();
+        getPlace();
       })
       .catch((error) => {
         console.error(`handleReviewSubmit error ${error}`);
@@ -174,6 +176,16 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
       return '#B15555';
     }
   };
+
+  const openLink = async (url: string) => {
+    const supported = await Linking.canOpenURL(url);
+    if (supported) {
+      await Linking.openURL(url);
+    } else {
+      alert(`ไม่สามารถเปิดลิ้งได้`);
+    }
+  };
+
   const rateColor = changeRateColor(place.averageRatingLabel);
 
   return (
@@ -193,25 +205,27 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
         <Text style={styles.title}>{place.name}</Text>
         <Text style={styles.distance}>{distance} m</Text>
         <Text style={styles.info}>{place.generalInfo}</Text>
-        <View style={styles.rating}>
-          <Text
-            text70
-            style={{
-              marginRight: 10,
-              borderColor: rateColor,
-              borderWidth: 1,
-              padding: 2,
-              bottom: 3,
-              paddingRight: 4,
-              paddingLeft: 4,
-              color: rateColor,
-              fontWeight: '700',
-            }}
-          >
-            {place.averageRatingLabel}
-          </Text>
-          <Text text70>{review.length} ratings</Text>
-        </View>
+        {review.length != 0 && (
+          <View style={styles.rating}>
+            <Text
+              text70
+              style={{
+                marginRight: 10,
+                borderColor: rateColor,
+                borderWidth: 1,
+                borderRadius: 3,
+                bottom: 3,
+                paddingRight: 4,
+                paddingLeft: 4,
+                color: rateColor,
+                fontWeight: '700',
+              }}
+            >
+              {place.averageRatingLabel}
+            </Text>
+            <Text text70>{review.length} ratings</Text>
+          </View>
+        )}
         <View
           style={{
             width: 350,
@@ -228,43 +242,70 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
             <Icon source={require('#assets/images/place/badge-nocolor.png')} size={30} />
           )}
         </TouchableOpacity>
+        <MapView
+          style={styles.map}
+          region={{
+            latitude: place.location.latitude,
+            longitude: place.location.longitude,
+            latitudeDelta: 0.001,
+            longitudeDelta: 0.002,
+          }}
+          provider={PROVIDER_GOOGLE}
+        >
+          <Marker
+            coordinate={{
+              latitude: place.location.latitude,
+              longitude: place.location.longitude,
+            }}
+          ></Marker>
+        </MapView>
         <View style={{ flex: 1 }}>
-          {place.weeklySchedule && (
+          {place.weeklySchedule && place.weeklySchedule.length != 0 && (
             <View style={styles.section}>
               <Icon source={require('#assets/images/place/weekly.png')} size={20} />
               <View style={{ marginLeft: 10 }}>
-                <Text style={styles.sectionTitle}>Weekly Schedule</Text>
-                {place.weeklySchedule.map((schedule, index) => (
-                  <Text
-                    key={index}
-                  >{`${schedule.date}: ${schedule.time.start.hour}:${schedule.time.start.minute} - ${schedule.time.end.hour}:${schedule.time.end.minute}`}</Text>
-                ))}
+                <Text style={styles.sectionTitle}>วันที่เปิด</Text>
+                {place.weeklySchedule.length == 7 ? (
+                  <Text>{`เปิดทุกวัน`}</Text>
+                ) : (
+                  place.weeklySchedule.map((schedule, index) => (
+                    // <Text
+                    //   key={index}
+                    // >{`${schedule.date}: ${schedule.time.start.hour}:${schedule.time.start.minute} - ${schedule.time.end.hour}:${schedule.time.end.minute}`}</Text>
+                    <Text key={index}>{`${schedule.date}`}</Text>
+                  ))
+                )}
               </View>
             </View>
           )}
-          {place.phone && (
+          {place.phone && place.phone.length != 0 && (
             <View style={styles.section}>
               <Icon source={require('#assets/images/place/phone.png')} size={20} />
               <View style={{ marginLeft: 10 }}>
-                <Text style={styles.sectionTitle}>Phone</Text>
+                <Text style={styles.sectionTitle}>เบอร์โทรศัพท์</Text>
                 {place.phone.map((phone, index) => (
                   <Text key={index}>{phone}</Text>
                 ))}
               </View>
             </View>
           )}
-          {place.website && (
+          {place.website && place.website.length != 0 && (
             <View style={styles.section}>
               <Icon source={require('#assets/images/place/website.png')} size={20} />
               <View style={{ marginLeft: 10 }}>
                 <Text style={styles.sectionTitle}>Website</Text>
                 {place.website.map((website, index) => (
-                  <Text key={index}>{website}</Text>
+                  <Button
+                    link
+                    linkColor={Colors.highlight}
+                    label={website}
+                    onPress={() => openLink(website)}
+                  />
                 ))}
               </View>
             </View>
           )}
-          {place.email && (
+          {place.email && place.email.length != 0 && (
             <View style={styles.section}>
               <Icon source={require('#assets/images/place/email.png')} size={20} />
               <View style={{ marginLeft: 10 }}>
@@ -365,6 +406,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 2, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
+  },
+  map: {
+    width: '100%',
+    height: 120,
+    borderColor: Colors.outline,
+    borderWidth: 0.5,
+    borderRadius: 10,
+    marginBottom: 15,
   },
 });
 

@@ -1,17 +1,10 @@
-import React, { useContext, useState } from "react";
-import { StyleSheet, ScrollView } from "react-native";
-import CustomInputText from "#src/components/CustomInputText";
-import { AuthContext } from "#src/auth/context/AuthContext";
-import { NavigationProp } from "@react-navigation/native";
-import {
-  View,
-  Button,
-  Dialog,
-  Text,
-  PanningProvider,
-  Image,
-} from "react-native-ui-lib";
-import Colors from "#src/constants/Colors";
+import React, { useContext, useState } from 'react';
+import { StyleSheet, ScrollView } from 'react-native';
+import CustomInputText from '#src/components/CustomInputText';
+import { AuthContext } from '#src/auth/context/AuthContext';
+import { NavigationProp } from '@react-navigation/native';
+import { View, Button, Dialog, Text, PanningProvider, Image } from 'react-native-ui-lib';
+import Colors from '#src/constants/Colors';
 
 interface HomeScreenProps {
   navigation: NavigationProp<any>;
@@ -19,46 +12,39 @@ interface HomeScreenProps {
 
 //TODO: check email format before login
 const SignInScreen = ({ navigation }: HomeScreenProps) => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
   const { login } = useContext(AuthContext);
   const [dialogVisible, setDialogVisible] = useState(false);
-  const [loginError, setLoginError] = useState<string>("");
+  const [loginError, setLoginError] = useState<string>('');
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
       <View useSafeArea>
         <View style={styles.background}>
-          <Image
-            style={styles.logo}
-            source={require("#assets/images/app-icon.png")}
-          />
-          <CustomInputText placeholder={"อีเมล"} setValue={setEmail} />
-          <CustomInputText
-            placeholder={"รหัสผ่าน"}
-            setValue={setPassword}
-            secureTextEntry={true}
-          />
+          <Image style={styles.logo} source={require('#assets/images/app-icon.png')} />
+          <CustomInputText placeholder={'ชื่อผู้ใช้'} setValue={setEmail} />
+          <CustomInputText placeholder={'รหัสผ่าน'} setValue={setPassword} secureTextEntry={true} />
           <View
             style={{
-              width: "100%",
-              alignItems: "flex-end",
+              width: '100%',
+              alignItems: 'flex-end',
             }}
           >
-            <Button
+            {/* <Button
               label="ลืมรหัสผ่าน"
               link
               linkColor={Colors.highlight}
               size={Button.sizes.small}
               onPress={forgetPasswordHandle}
-            ></Button>
+            ></Button> */}
           </View>
           <View style={{ marginTop: 20 }}>
             <Button
               onPress={() => {
-                if (email === "" || password === "") {
+                if (email === '' || password === '') {
                   setDialogVisible(true);
-                  setLoginError("กรุณากรอกอีเมลและรหัสผ่าน");
+                  setLoginError('กรุณากรอกอีเมลและรหัสผ่าน');
                   return;
                 }
                 login(email, password).catch((error: any) => {
@@ -70,12 +56,12 @@ const SignInScreen = ({ navigation }: HomeScreenProps) => {
               style={{ backgroundColor: Colors.highlight }}
             ></Button>
           </View>
-          <View style={{ flexDirection: "row", marginTop: 10 }}>
+          <View style={{ flexDirection: 'row', marginTop: 10 }}>
             <Text>ยังไม่มีบัญชีผู้ใช้งาน?</Text>
             <View style={{ width: 10 }}></View>
             <Button
               onPress={() => {
-                navigation.navigate("SignUp");
+                navigation.navigate('SignUp');
               }}
               link
               label="สร้างบัญชี"
@@ -107,7 +93,7 @@ const styles = StyleSheet.create({
   },
   background: {
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
     padding: 20,
   },
   logo: {

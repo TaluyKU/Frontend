@@ -2,10 +2,17 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { Place } from '#interfaces/PlaceInterface';
 import { TouchableOpacity, View, Text, Image } from 'react-native-ui-lib';
+import { NavigationProp } from '@react-navigation/native';
 
-const PlaceRecommendComponent = ({ place }: { place: Place }) => {
+const PlaceRecommendComponent = ({
+  place,
+  navigation,
+}: {
+  place: Place;
+  navigation: NavigationProp<any>;
+}) => {
   return (
-    <TouchableOpacity>
+    <TouchableOpacity onPress={() => navigation.navigate('Place', { placeId: place._id })}>
       <View style={styles.container}>
         <Image
           source={{ uri: `${process.env.IMAGE_BUCKET_BASE_URL}/${place.images?.[0]}` }}
