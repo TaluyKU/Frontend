@@ -1,3 +1,4 @@
+import Colors from '#src/constants/Colors';
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native';
 import { Button, Incubator } from 'react-native-ui-lib';
@@ -27,8 +28,12 @@ const MultiSelectDialog = ({
 
   return (
     <View>
-      <Button label={title} onPress={() => setIsDialogVisible(true)} />
-      <Text>Selected: {selectedItems.join(', ')}</Text>
+      <Button
+        label={title}
+        outline
+        outlineColor={Colors.highlight}
+        onPress={() => setIsDialogVisible(true)}
+      />
       <Incubator.Dialog
         visible={isDialogVisible}
         onDismiss={() => setIsDialogVisible(false)}

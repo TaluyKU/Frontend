@@ -297,6 +297,7 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
                 {place.website.map((website, index) => (
                   <Button
                     link
+                    key={index}
                     linkColor={Colors.highlight}
                     label={website}
                     onPress={() => openLink(website)}

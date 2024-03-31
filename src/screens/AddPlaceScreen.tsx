@@ -8,6 +8,7 @@ import { useCurrentLocation } from '#src/hooks/useCurrentLocation';
 import Colors from '#src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import MultiSelectDialog from '#src/components/MultiSelectDialog';
+import TagInputComponent from '#src/components/TagsInput';
 
 const AddPlaceScreen = () => {
   let { location } = useCurrentLocation();
@@ -144,7 +145,7 @@ const AddPlaceScreen = () => {
     setPlace({ ...place, weeklySchedule });
   };
 
-  // console.log(place);
+  console.log(place);
   // console.log(date);
 
   return (
@@ -160,34 +161,55 @@ const AddPlaceScreen = () => {
         >
           {selectedLocation && <Marker coordinate={selectedLocation} />}
         </MapView>
-        <View>
-          <Text text60M marginB-10>
-            ข้อมูลสถานที่
-          </Text>
-          <TextField
-            placeholder="ชื่อสถานที่"
-            onChangeText={(text) => setPlace({ ...place, name: text })}
-            value={place.name}
-          />
-          <TextField
-            placeholder="คำอธิบายสถานที่"
-            onChangeText={(text) => setPlace({ ...place, generalInfo: text })}
-            value={place.generalInfo}
-          />
-          <Button
-            label="เพิ่มรูปภาพ"
-            onPress={handleImagePicker}
-            outline
-            style={{ width: '40%' }}
-          />
-          <MultiSelectDialog
-            items={day}
-            selectedItems={date}
-            setSelectedItems={setDate}
-            title="Select Days"
-          />
-          <Button label="Submit" onPress={() => handleSubmit()} />
-        </View>
+        <Text text60M marginB-10>
+          ข้อมูลสถานที่
+        </Text>
+        <TextField
+          placeholder="ชื่อสถานที่"
+          onChangeText={(text) => setPlace({ ...place, name: text })}
+          value={place.name}
+        />
+        <TextField
+          placeholder="คำอธิบายสถานที่"
+          onChangeText={(text) => setPlace({ ...place, generalInfo: text })}
+          value={place.generalInfo}
+        />
+        <Button
+          label="เพิ่มรูปภาพ"
+          onPress={handleImagePicker}
+          outline
+          outlineColor={Colors.highlight}
+          style={{ width: '40%' }}
+        />
+        <MultiSelectDialog
+          items={day}
+          selectedItems={date}
+          setSelectedItems={setDate}
+          title="เลือกวันที่เปิด"
+        />
+
+        <MultiSelectDialog
+          items={categories}
+          selectedItems={place.categories || []}
+          setSelectedItems={(items) => setPlace({ ...place, categories: items })}
+          title="เลือกหมวดหมู่"
+        />
+        <TagInputComponent
+          selectedItems={place.phone || []}
+          setSelectedItems={(items) => setPlace({ ...place, phone: items })}
+          placeHolder="เบอร์โทรศัพท์"
+        />
+        <TagInputComponent
+          selectedItems={place.website || []}
+          setSelectedItems={(items) => setPlace({ ...place, website: items })}
+          placeHolder="เว็บไซต์"
+        />
+        <TagInputComponent
+          selectedItems={place.email || []}
+          setSelectedItems={(items) => setPlace({ ...place, email: items })}
+          placeHolder="อีเมลล์"
+        />
+        <Button label="Submit" backgroundColor={Colors.highlight} onPress={() => handleSubmit()} />
       </ScrollView>
     </View>
   );
@@ -205,6 +227,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.outline,
     borderWidth: 0.5,
     borderRadius: 10,
+    marginBottom: 20,
   },
   dialogContainer: {
     backgroundColor: 'white',
