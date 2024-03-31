@@ -24,8 +24,8 @@ export const mapScoreToLabel = (score: number) => {
   } else if (score >= 2.5) {
     return 'C';
   } else if (score >= 2.0) {
-    return 'D+';
-  } else {
     return 'D';
+  } else {
+    return 'F';
   }
 };

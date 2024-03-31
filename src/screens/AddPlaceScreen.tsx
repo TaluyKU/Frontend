@@ -9,15 +9,15 @@ import Colors from '#src/constants/Colors';
 import * as ImagePicker from 'expo-image-picker';
 import MultiSelectDialog from '#src/components/MultiSelectDialog';
 import TagInputComponent from '#src/components/TagsInput';
+import { NavigationProp } from '@react-navigation/native';
 
-const AddPlaceScreen = () => {
+interface AddPlaceScreenProps {
+  navigation: NavigationProp<any>;
+}
+
+const AddPlaceScreen = ({ navigation }: AddPlaceScreenProps) => {
   let { location } = useCurrentLocation();
-  const [place, setPlace] = useState<Partial<Place>>({
-    location: {
-      latitude: 0,
-      longitude: 0,
-    },
-  });
+  const [place, setPlace] = useState<Partial<Place>>({});
   const [selectedLocation, setSelectedLocation] = useState<LatLng>({
     latitude: 0,
     longitude: 0,
@@ -31,10 +31,6 @@ const AddPlaceScreen = () => {
     if (location) {
       setPlace({
         ...place,
-        location: {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-        },
       });
       setSelectedLocation({
         latitude: location.coords.latitude,
@@ -63,6 +59,7 @@ const AddPlaceScreen = () => {
       const uploadedPlace = await axios.post(`${process.env.BASE_URL}/place/create`, place);
       console.log('Uploaded:', uploadedPlace.data);
       handleUploadImage(uploadedPlace.data._id);
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
     } catch (error) {
       console.error('Error submitting place:', error);
     }

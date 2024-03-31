@@ -219,21 +219,18 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
             {/* <Icon source={require('#assets/images/place/category.png')} size={20} /> */}
             <View style={{ flexDirection: 'row' }}>
               {place.categories.map((category, index) => (
-                <View row>
-                  {/* {index != 0 && <Text>,</Text>} */}
-                  <Text
-                    key={index}
-                    style={{
-                      marginRight: 5,
-                      borderRadius: 5,
-                      borderWidth: 1,
-                      borderColor: Colors.highlight,
-                      padding: 2,
-                    }}
-                  >
-                    {category}
-                  </Text>
-                </View>
+                <Text
+                  key={index}
+                  style={{
+                    marginRight: 5,
+                    borderRadius: 5,
+                    borderWidth: 1,
+                    borderColor: Colors.highlight,
+                    padding: 2,
+                  }}
+                >
+                  {category}
+                </Text>
               ))}
             </View>
           </View>

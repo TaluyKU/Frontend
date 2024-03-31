@@ -89,89 +89,89 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
 
   return (
     <View style={styles.container}>
-      <Carousel
-        containerStyle={styles.carousel}
-        autoplay
-        autoplayInterval={10000}
-        allowAccessibleLayout
-        loop
-        pageControlPosition={Carousel.pageControlPositions.OVER}
-      >
-        {landmarkData.map((item, index) => {
-          const rateColor = changeRateColor(item.averageRatingLabel);
-          return (
-            <TouchableOpacity
-              key={index}
-              style={styles.carouselCard}
-              onPress={() => navigation.navigate('Place', { placeId: item._id })}
-            >
-              <ImageBackground
-                source={{
-                  uri: item.images && `${process.env.IMAGE_BUCKET_BASE_URL}/${item.images[0]}`,
-                }}
-                style={styles.carouselImage}
-                resizeMode="cover"
-              ></ImageBackground>
-              <View useSafeArea>
-                <Text style={{ ...styles.carouselText, fontWeight: 'bold', fontSize: 30 }}>
-                  {item.name}
-                </Text>
-                <Text style={styles.carouselText}>{item.generalInfo}</Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </Carousel>
-
-      {/*  nav bar */}
-      <View style={styles.menu}>
-        <Card
-          style={styles.menuCard}
-          onPress={() => {
-            navigation.navigate('Map');
-          }}
-        >
-          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
-          <Text style={styles.menuText}>แผนที่</Text>
-        </Card>
-        <Card
-          style={styles.menuCard}
-          onPress={() => {
-            navigation.navigate('Map', { category: 'คาเฟ่' });
-          }}
-        >
-          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
-          <Text style={styles.menuText}>คาเฟ่</Text>
-        </Card>
-        <Card
-          style={styles.menuCard}
-          onPress={() => {
-            navigation.navigate('Map', { category: 'ร้านอาหาร' });
-          }}
-        >
-          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
-          <Text style={styles.menuText}>ร้านอาหาร</Text>
-        </Card>
-        <Card
-          style={styles.menuCard}
-          onPress={() => {
-            navigation.navigate('Map', { category: 'ห้องน้ำ' });
-          }}
-        >
-          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
-          <Text style={styles.menuText}>ห้องน้ำ</Text>
-        </Card>
-        <Card
-          containerStyle={styles.menuCard}
-          onPress={() => {
-            navigation.navigate('Map', { category: 'จุดถ่ายภาพ' });
-          }}
-        >
-          <Image source={require('#assets/images/home/menu.png')} style={styles.menuIcon} />
-          <Text style={styles.menuText}>จุดถ่ายภาพ</Text>
-        </Card>
-      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
+        <Carousel
+          containerStyle={styles.carousel}
+          autoplay
+          autoplayInterval={10000}
+          allowAccessibleLayout
+          loop
+          pageControlPosition={Carousel.pageControlPositions.OVER}
+        >
+          {landmarkData.map((item, index) => {
+            const rateColor = changeRateColor(item.averageRatingLabel);
+            return (
+              <TouchableOpacity
+                key={index}
+                style={styles.carouselCard}
+                onPress={() => navigation.navigate('Place', { placeId: item._id })}
+              >
+                <ImageBackground
+                  source={{
+                    uri: item.images && `${process.env.IMAGE_BUCKET_BASE_URL}/${item.images[0]}`,
+                  }}
+                  style={styles.carouselImage}
+                  resizeMode="cover"
+                ></ImageBackground>
+                <View useSafeArea>
+                  <Text style={{ ...styles.carouselText, fontWeight: 'bold', fontSize: 30 }}>
+                    {item.name}
+                  </Text>
+                  <Text style={styles.carouselText}>{item.generalInfo}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </Carousel>
+
+        {/*  nav bar */}
+        <View style={styles.menu}>
+          <Card
+            style={styles.menuCard}
+            onPress={() => {
+              navigation.navigate('Map');
+            }}
+          >
+            <Image source={require('#assets/images/home/map.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>แผนที่</Text>
+          </Card>
+          <Card
+            style={styles.menuCard}
+            onPress={() => {
+              navigation.navigate('Map', { category: 'คาเฟ่' });
+            }}
+          >
+            <Image source={require('#assets/images/home/cafe.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>คาเฟ่</Text>
+          </Card>
+          <Card
+            style={styles.menuCard}
+            onPress={() => {
+              navigation.navigate('Map', { category: 'ร้านอาหาร' });
+            }}
+          >
+            <Image source={require('#assets/images/home/restuarant.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>ร้านอาหาร</Text>
+          </Card>
+          <Card
+            style={styles.menuCard}
+            onPress={() => {
+              navigation.navigate('Map', { category: 'ร้านค้า' });
+            }}
+          >
+            <Image source={require('#assets/images/home/store.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>ห้องน้ำ</Text>
+          </Card>
+          <Card
+            containerStyle={styles.menuCard}
+            onPress={() => {
+              navigation.navigate('Map', { category: 'จุดถ่ายภาพ' });
+            }}
+          >
+            <Image source={require('#assets/images/home/camera.png')} style={styles.menuIcon} />
+            <Text style={styles.menuText}>จุดถ่ายภาพ</Text>
+          </Card>
+        </View>
         <>
           {/* tab */}
           <View style={styles.recommendTab}>
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   },
   carouselText: {
     left: 20,
-    fontSize: 20,
+    fontSize: 16,
     flexWrap: 'wrap',
   },
   menu: {
@@ -270,10 +270,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.outline,
   },
   menuIcon: {
-    width: 20,
-    height: 20,
+    width: 25,
+    height: 25,
     resizeMode: 'contain',
-    marginBottom: 4,
+    marginBottom: 2,
   },
   menuText: {
     fontSize: 10,
