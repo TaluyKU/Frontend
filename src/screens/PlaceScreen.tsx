@@ -188,41 +188,97 @@ const PlaceScreen = ({ navigation, route }: PlaceScreenProps) => {
             <Icon source={require('#assets/images/place/badge-nocolor.png')} size={30} />
           )}
         </TouchableOpacity>
-        {place.weeklySchedule && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Weekly Schedule</Text>
-            {place.weeklySchedule.map((schedule, index) => (
-              <Text
-                key={index}
-              >{`${schedule.date}: ${schedule.time.start.hour}:${schedule.time.start.minute} - ${schedule.time.end.hour}:${schedule.time.end.minute}`}</Text>
-            ))}
-          </View>
-        )}
-        {place.phone && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Phone</Text>
-            {place.phone.map((phone, index) => (
-              <Text key={index}>{phone}</Text>
-            ))}
-          </View>
-        )}
-        {place.website && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Website</Text>
-            {place.website.map((website, index) => (
-              <Text key={index}>{website}</Text>
-            ))}
-          </View>
-        )}
-        {place.email && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Email</Text>
-            {place.email.map((email, index) => (
-              <Text key={index}>{email}</Text>
-            ))}
-          </View>
-        )}
-        <Button label="เขียนรีวิว" onPress={() => setReviewModalVisible(true)} />
+        <MapView
+          style={styles.map}
+          region={{
+            latitude: place.location.latitude,
+            longitude: place.location.longitude,
+            latitudeDelta: 0.001,
+            longitudeDelta: 0.002,
+          }}
+          provider={PROVIDER_GOOGLE}
+        >
+          <Marker
+            coordinate={{
+              latitude: place.location.latitude,
+              longitude: place.location.longitude,
+            }}
+          ></Marker>
+        </MapView>
+        <View style={{ flex: 1 }}>
+          {place.weeklySchedule && place.weeklySchedule.length != 0 && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/weekly.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>วันที่เปิด</Text>
+                {place.weeklySchedule.length == 7 ? (
+                  <Text>{`เปิดทุกวัน`}</Text>
+                ) : (
+                  place.weeklySchedule.map((schedule, index) => (
+                    // <Text
+                    //   key={index}
+                    // >{`${schedule.date}: ${schedule.time.start.hour}:${schedule.time.start.minute} - ${schedule.time.end.hour}:${schedule.time.end.minute}`}</Text>
+                    <Text key={index}>{`${schedule.date}`}</Text>
+                  ))
+                )}
+              </View>
+            </View>
+          )}
+          {place.phone && place.phone.length != 0 && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/phone.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>เบอร์โทรศัพท์</Text>
+                {place.phone.map((phone, index) => (
+                  <Text key={index}>{phone}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+          {place.website && place.website.length != 0 && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/website.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>Website</Text>
+                {place.website.map((website, index) => (
+                  <Button
+                    link
+                    key={index}
+                    linkColor={Colors.highlight}
+                    label={website}
+                    onPress={() => openLink(website)}
+                  />
+                ))}
+              </View>
+            </View>
+          )}
+          {place.email && place.email.length != 0 && (
+            <View style={styles.section}>
+              <Icon source={require('#assets/images/place/email.png')} size={20} />
+              <View style={{ marginLeft: 10 }}>
+                <Text style={styles.sectionTitle}>Email</Text>
+                {place.email.map((email, index) => (
+                  <Text key={index}>{email}</Text>
+                ))}
+              </View>
+            </View>
+          )}
+          <View
+            style={{
+              width: 350,
+              backgroundColor: 'rgba(164, 164, 164, 1)',
+              height: 1,
+              marginBottom: 20,
+              marginTop: 10,
+            }}
+          ></View>
+        </View>
+        <Button
+          label="เพิ่มความคิดเห็น"
+          onPress={() => setReviewModalVisible(true)}
+          style={{ backgroundColor: '#E1F0DA', borderRadius: 10 }}
+          color={'black'}
+        />
         <ReviewModal
           isVisible={reviewModalVisible}
           onClose={() => setReviewModalVisible(false)}
